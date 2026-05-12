@@ -1,5 +1,6 @@
 using Telegram.Bot;
 using Console.Advanced.Services;
+using tg_bot_timer;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((hostingContext, config) =>
@@ -10,10 +11,10 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         const string botTokenPath = "Telegram-Bot";
         var token = context.Configuration[botTokenPath];
-        var serverUrl = context.Configuration["ApiUrl"];
+        var serverUri = context.Configuration["ApiUrl"];
         services.AddHttpClient<TimerApiClient>(client =>
         {
-            client.BaseAddress = new Uri("https://your-server.com/"); // ← твой сервер
+            client.BaseAddress = new Uri(serverUri); // ← твой сервер
             client.DefaultRequestHeaders.Add("Accept", "application/json");
         });
         if (string.IsNullOrEmpty(token))
@@ -38,8 +39,3 @@ IHost host = Host.CreateDefaultBuilder(args)
     .Build();
 
 await host.RunAsync();
-
-public class TimerApiClient(string serverUrl)
-{
-    
-}
