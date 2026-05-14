@@ -9,10 +9,7 @@ public class TimerApiClient : ITimerApiClient
     private readonly TimerApiOptions _options;
     private readonly ILogger<TimerApiClient> _logger;
 
-    public TimerApiClient(
-        HttpClient httpClient,
-        IOptions<TimerApiOptions> options,
-        ILogger<TimerApiClient> logger)
+    public TimerApiClient(HttpClient httpClient, IOptions<TimerApiOptions> options, ILogger<TimerApiClient> logger)
     {
         _httpClient = httpClient;
         _options = options.Value;
