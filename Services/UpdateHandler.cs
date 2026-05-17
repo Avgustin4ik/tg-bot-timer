@@ -9,8 +9,11 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Console.Advanced.Services;
 
-public class UpdateHandler(ITelegramBotClient bot, ILogger<UpdateHandler> logger) : IUpdateHandler
+using tg_bot_timer;
+
+public class UpdateHandler(ITelegramBotClient bot, ITimerApiClient client, ILogger<UpdateHandler> logger) : IUpdateHandler
 {
+    private readonly ITimerApiClient _client = client;
     private static readonly InputPollOption[] PollOptions = ["Hello", "World!"];
 
     public async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
@@ -56,7 +59,6 @@ public class UpdateHandler(ITelegramBotClient bot, ILogger<UpdateHandler> logger
     {
         throw new NotImplementedException();
     }
-
     private Task<Message> ChangeTimer(Message msg)
     {
         throw new NotImplementedException();
@@ -72,7 +74,7 @@ public class UpdateHandler(ITelegramBotClient bot, ILogger<UpdateHandler> logger
                 new InlineKeyboardButton("No", "N"));
         return await bot.SendMessage(msg.Chat, message, replyMarkup: inlineMarkup);
     }
-
+    
     private async Task<Message> SetTimer(Message msg)
     {
         //todo check if we have timer
@@ -83,9 +85,9 @@ public class UpdateHandler(ITelegramBotClient bot, ILogger<UpdateHandler> logger
               """;
         var inlineMarkup = new InlineKeyboardMarkup()
             .AddNewRow()
-            .AddButtons(new InlineKeyboardButton("5 min", "5"),
-                        new InlineKeyboardButton("30 min", "30"),
-                        new InlineKeyboardButton("60 min", "60"));
+            .AddButtons(new InlineKeyboardButton("5 min", CallbackData.Timer("5m")),
+                        new InlineKeyboardButton("30 min", CallbackData.Timer("30m")),
+                        new InlineKeyboardButton("60 min", CallbackData.Timer("60m")));
         //todo setup timer at recived time
         // return await SendInlineKeyboard(msg);
         return await bot.SendMessage(msg.Chat, message, ParseMode.Html, replyMarkup: inlineMarkup);
@@ -100,24 +102,6 @@ public class UpdateHandler(ITelegramBotClient bot, ILogger<UpdateHandler> logger
                 /remove         - remove existing timer
             """;
         return await bot.SendMessage(msg.Chat, usage, parseMode: ParseMode.Html, replyMarkup: new ReplyKeyboardRemove());
-    }
-
-    async Task<Message> SendInlineKeyboard(Message msg)
-    {
-        var inlineMarkup = new InlineKeyboardMarkup()
-            .AddNewRow("1.1", "1.2", "1.3")
-            .AddNewRow()
-                .AddButton("WithCallbackData", "CallbackData")
-                .AddButton(new InlineKeyboardButton("WithUrl", "https://github.com/TelegramBots/Telegram.Bot"));
-        return await bot.SendMessage(msg.Chat, "Inline buttons:", replyMarkup: inlineMarkup);
-    }
-
-    async Task<Message> SendReplyKeyboard(Message msg)
-    {
-        var replyMarkup = new ReplyKeyboardMarkup(true)
-            .AddNewRow("1.1", "1.2", "1.3")
-            .AddNewRow().AddButton("2.1").AddButton("2.2");
-        return await bot.SendMessage(msg.Chat, "Keyboard buttons:", replyMarkup: replyMarkup);
     }
 
     async Task<Message> RemoveKeyboard(Message msg)
